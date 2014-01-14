@@ -17,7 +17,7 @@ docker build -t unpaper .
 
 ## Usage
 
-To use, copy your input PDF to `input/input.pdf`.
+To use, copy your input PDF to `input/in.pdf`.
 Then run the container.
 
 ```
