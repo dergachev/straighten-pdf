@@ -1,48 +1,33 @@
 straighten-pdf
 ==============
 
-Docker image to straighten scanned PDFs using [unpaper](http://unpaper.berlios.de).
+Docker image to straighten scanned PDFs using imagemagick.
 
 ## Install
 
-Make sure you have docker installed. Then build the `dergachev/straighten-pdf` container:
+Make sure you have docker installed. Then build the `dergachev/straighten-pdf` image:
 
 ```bash
 git clone https://github.com/dergachev/straighten-pdf
 cd straighten-pdf
 
-# if you are lazy and trust me, just download the docker image
-docker pull dergachev/straighten-pdf
+# optinally, install squid-deb-proxy on your docker host to speed up the build
+sudo apt-get install -y squid-deb-proxy
 
-# otherwise, build it locally yourself
 docker build -t dergachev/straighten-pdf .
 ```
 
 ## Usage
 
-With docker running and `dergachev/straighten-pdf` image installed, run `straighten-pdf.sh`:
+With docker running and `dergachev/straighten-pdf` image installed, simply use `make run`:
 
 ```bash
-bash run.sh INPUTFILE.pdf
+make run in=build/infile.pdf out=build/out.pdf
 ```
 
-The following env variables are respected by straighten-pdf.sh , with respective default values:
+The following is the default value of `convert_arg` variable, respected by `make run`:
 
 ```bash
-PDFTOPPM_ARGS="-gray -r 300"
-UNPAPER_ARGS=""
-CONVERT_ARGS="-verbose -limit memory 400m -limit map 400m"
+convert_args="-verbose -units PixelsPerInch -density 300 -deskew 50% -compress jpeg -quality 20 -depth 8 -background white -alpha remove -alpha off"
 ```
-
-For info on these args, see respective manpages:
-* [man pdftoppm](http://linux.die.net/man/1/pdftoppm)
-* [man unpaper](http://unpaper.berlios.de) (we use 0.4.2, not 0.3)
-* [man convert](http://linux.die.net/man/1/convert)
-
-The output will be stored in `build/INPUTFILE.pdf`.
-
-## Notes
-
-* Currently set to 300dpi, which is slow and produces large files (1.5MB / page)
-* Can be memory hungry. By default limited to 400m.
-* See Makefile for handy shortcuts
+The background/alpha args are to remove transparency from generated PDFs, which seems to help file size.

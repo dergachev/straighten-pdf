@@ -1,25 +1,16 @@
-# DOCKER STUFF
+convert_args=-verbose -units PixelsPerInch -density 300 -deskew 50% -compress jpeg -quality 20 -depth 8 -background white -alpha remove -alpha off
+in=build/in.pdf
+out=build/out.pdf
+
+run:
+	docker run -i -t -v `pwd`:/src \
+	  dergachev/straighten-pdf \
+		convert $(convert_args) $(in) $(out)
 
 build:
 	docker build -t dergachev/straighten-pdf .
-run:
-	docker run -i -t -v $$(pwd):/src dergachev/straighten-pdf
-debug:
-	docker run -i -t -v $$(pwd):/src dergachev/straighten-pdf /bin/bash
 
-# UNPAPER STUFF
-ppm:
-	pdftoppm ${PDFTOPPM_ARGS} build/in.pdf build/out
-rename:
-	for F in build/out-*.p*m; do NEW=$$(echo $$F | perl -n -e '/build\/out-(\d+)/ && print sprintf("build/out-%06d.raw",$$1)'); mv $$F $$NEW; done
-unpaper:
-	unpaper ${UNPAPER_ARGS} build/out-%06d.raw build/out-%02d.pgm.processed
-unprocessed:
-	convert ${CONVERT_ARGS} build/out-* build/unprocessed.pdf
-pdf:
-	convert ${CONVERT_ARGS} build/*.processed build/out.pdf
-clean:
-	rm -f build/out*
-all: clean ppm rename unpaper pdf
+debug:
+	docker run -i -t -v `pwd`:/src dergachev/straighten-pdf /bin/bash
 
 .PHONY: build
